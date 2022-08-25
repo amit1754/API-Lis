@@ -56,3 +56,83 @@ async getDetail(req: Request, res: Response) {
     }
   }
  
+
+  ==============================================================
+
+  import { demoModel, faqsModel } from '../models';
+import { demoService, assessmentService } from '../mongoServices';
+
+const create = async (req, res) => {
+	try {
+		const data = {
+			...req.body,
+		};
+		const Model = await demoModel(data);
+		const saveResponse = Model.save();
+		if (saveResponse) {
+			res.status(200).json({
+				success: true,
+				data: [data],
+			});
+		}
+	} catch (error) {
+		res.status(400).json({
+			success: false,
+			message: 'data is not found 400',
+		});
+	}
+};
+const get = async (req, res) => {
+	try {
+		const data = await demoModel.find({}, { Description: 1 });
+		const newData = await faqsModel.find({}, { question: 1 });
+		const payload = {
+			demoDetail: [data],
+			faqsDetail: [newData],
+		};
+		if (data) {
+			res.status(200).json({
+				success: true,
+				message: 'data found',
+				data: [payload],
+			});
+		}
+	} catch (error) {
+		res.status(400).json({
+			success: false,
+			message: 'data is not found 400',
+		});
+	}
+};
+const getById = async (req, res) => {
+	try {
+		const { id, _id } = req.body;
+		if (id) {
+			const data = await demoModel.find({}, { title: 1, Description: 1 });
+			if (_id) {
+				const newData = await faqsModel.findOne({}, { question: 1, answer: 1 });
+				const payload = {
+					demoDetail: data,
+					faqsDetail: newData,
+				};
+				if (data) {
+					res.status(200).json({
+						success: true,
+						message: 'data found',
+						data: [payload],
+					});
+				}
+			}
+		}
+	} catch (error) {
+		res.status(400).json({
+			success: false,
+			message: 'data is not found 400',
+		});
+	}
+};
+export default {
+	create,
+	get,
+	getById,
+};
